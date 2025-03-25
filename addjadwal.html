@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Jadwal Gym</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="https://i.pinimg.com/736x/fc/78/15/fc7815fd58a9d67d1bc5b858b4c7ccf6.jpg"></head>
+
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Tambah Jadwal Gym</h2>
+            
+            <label class="block font-semibold">Pilih Hari:</label>
+            <select id="day-select" class="w-full p-2 border rounded mb-3">
+                <option value="Senin">Senin</option>
+                <option value="Selasa">Selasa</option>
+                <option value="Rabu">Rabu</option>
+                <option value="Kamis">Kamis</option>
+                <option value="Jumat">Jumat</option>
+                <option value="Sabtu">Sabtu</option>
+                <option value="Minggu">Minggu</option>
+            </select>
+            
+            <label class="block font-semibold">Pilih Program:</label>
+            <select id="program-select" class="w-full p-2 border rounded mb-3">
+                <option value="PUSH">PUSH</option>
+                <option value="PULL">PULL</option>
+                <option value="LEG">LEG</option>
+            </select>
+            
+            <label class="block font-semibold">Pilih Exercise:</label>
+            <div id="exercise-list" class="mb-3 space-y-2"></div>
+            
+            <button onclick="saveWorkout()" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan Jadwal</button>
+            <button onclick="closePopup()" class="bg-red-500 text-white px-4 py-2 rounded mt-2">Tutup</button>
+            <button onclick="deleteSchedule()" class="bg-gray-500 text-white px-4 py-2 rounded mt-2">Hapus Jadwal</button>
+        </div>
+    </div>
+    
+    <script>
+        const exercises = {
+            PUSH: ["Bench Press", "Shoulder Press", "Triceps Dips"],
+            PULL: ["Pull-ups", "Barbell Row", "Biceps Curl"],
+            LEG: ["Squat", "Deadlift", "Lunges"]
+        };
+
+        document.getElementById("program-select").addEventListener("change", function () {
+            const selectedProgram = this.value;
+            const exerciseList = document.getElementById("exercise-list");
+            exerciseList.innerHTML = "";
+            exercises[selectedProgram].forEach(exercise => {
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = exercise;
+                checkbox.classList.add("mr-2");
+                const label = document.createElement("label");
+                label.textContent = exercise;
+                label.classList.add("block");
+                label.prepend(checkbox);
+                exerciseList.appendChild(label);
+            });
+        });
+        
+        function saveWorkout() {
+            const day = document.getElementById("day-select").value;
+            const selectedExercises = Array.from(document.querySelectorAll("#exercise-list input:checked")).map(e => e.value);
+            if (!selectedExercises.length) return alert("Pilih minimal satu exercise!");
+            let schedule = JSON.parse(localStorage.getItem("schedule")) || {};
+            if (!schedule[day]) schedule[day] = [];
+            schedule[day].push(...selectedExercises);
+            localStorage.setItem("schedule", JSON.stringify(schedule));
+            alert("Jadwal disimpan!");
+            closePopup();
+        }
+        
+        function deleteSchedule() {
+            const day = document.getElementById("day-select").value;
+            let schedule = JSON.parse(localStorage.getItem("schedule")) || {};
+            if (schedule[day]) {
+                delete schedule[day];
+                localStorage.setItem("schedule", JSON.stringify(schedule));
+                alert("Jadwal untuk " + day + " telah dihapus!");
+            } else {
+                alert("Tidak ada jadwal untuk " + day);
+            }
+        }
+        
+        function closePopup() {
+            window.location.href = "index.html";
+        }
+        
+        document.getElementById("program-select").dispatchEvent(new Event("change"));
+    </script>
+</body>
+</html>
